@@ -3,8 +3,15 @@ import UIKit
 
 class HomeViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
+    enum Sections: Int {
+        case trendingTitles = 0
+        case upcomingTitles = 1
+        case popularTitles = 2
+        case topRatedTitles = 3
+    }
     
-    let sectiontitles: [String] = ["Trending Dramas", "Popular", "Comedy Dramas", "ActionDramas", "K-dramas", "C-dramas", "J-dramas"]
+    
+    let sectiontitles: [String] = ["Trending Dramas", "Upcoming", "Popular", "Top Rated"]
     
     
     
@@ -26,6 +33,13 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
         let headerView = HeroHeaderUIView(frame: CGRect(x: 0, y: 0, width: view.bounds.width, height: 450))
         homeFeedTable.tableHeaderView = headerView
     }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        homeFeedTable.frame = view.bounds
+    }
+        
+    
     
     // top configuration ----------------------------------------------------------------
     
@@ -55,12 +69,6 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
     }
 
     
-    
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        homeFeedTable.frame = view.bounds
-    }
-    
     // table configuration ----------------------------------------------------------------
     
     func numberOfSections(in tableView: UITableView) -> Int {
@@ -76,8 +84,65 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
         guard let cell = tableView.dequeueReusableCell(withIdentifier: CollectionViewTableViewCell.identifier, for: indexPath) as? CollectionViewTableViewCell else{
             return UITableViewCell()
         }
+        
+        switch indexPath.section{
+            
+        case Sections.trendingTitles.rawValue:
+            
+            let caseSectionTrending = APIcaller()
+            caseSectionTrending.getMoviesFromIdThree{result in
+                switch result{
+                case .success(let titles):
+                    cell.configure(with: titles)
+                case .failure(let error):
+                    print (error.localizedDescription)
+                }
+                
+            }
+            
+        case Sections.upcomingTitles.rawValue:
+            
+            let caseSectionUpcoming = APIcaller()
+            caseSectionUpcoming.getMoviesFromIdTwo{result in
+                switch result{
+                case .success(let titles):
+                    cell.configure(with: titles)
+                case .failure(let error):
+                    print (error.localizedDescription)
+                }
+            }
+            
+        case Sections.popularTitles.rawValue:
+            
+            let caseSectionPopular = APIcaller()
+            caseSectionPopular.getMoviesFromId {result in
+                switch result{
+                case .success(let titles):
+                    cell.configure(with: titles)
+                case .failure(let error):
+                    print (error.localizedDescription)
+                }
+            }
+            
+        case Sections.topRatedTitles.rawValue:
+            
+            let caseSectionTopRated = APIcaller()
+            caseSectionTopRated.getTopRatedMovies {result in
+                switch result{
+                case .success(let titles):
+                    cell.configure(with: titles)
+                case .failure(let error):
+                    print (error.localizedDescription)
+                }
+            }
+        default:
+            return UITableViewCell()
+        }
+        
         return cell
+
     }
+
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 200
@@ -87,16 +152,15 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
         40
     }
     
-    
-    
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         return sectiontitles[section]
     }
     
     func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {
         guard let header = view as? UITableViewHeaderFooterView else {return}
-        header.textLabel?.font = .systemFont(ofSize: 16, weight: .semibold)
+        header.textLabel?.font = .systemFont(ofSize: 16, weight: .medium)
         header.textLabel?.frame = CGRect(x: header.bounds.origin.x + 20, y: header.bounds.origin.y, width: 100, height: header.bounds.height)
+        header.textLabel?.text = header.textLabel?.text?.capitalizeFirstLetter()
     }
  
 
