@@ -5,7 +5,7 @@ class MainTabBarViewController: UITabBarController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .purple
+        view.backgroundColor = .systemBackground
         
         let firstVC = UINavigationController(rootViewController: HomeViewController())
         let secondVC = UINavigationController(rootViewController: UpcomingViewController())
@@ -19,7 +19,7 @@ class MainTabBarViewController: UITabBarController {
         fourthVC.tabBarItem.image = UIImage(systemName: "arrow.down.to.line")
         
         firstVC.title = "Home"
-        secondVC.title = "Coming Soon"
+        secondVC.title = "Upcoming"
         thirdVC.title = "Search"
         fourthVC.title = "Downloads"
         

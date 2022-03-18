@@ -19,6 +19,14 @@ class HeroHeaderUIView: UIView {
         fatalError()
     }
     
+    public func configure(with model: TitleViewModel) {
+           guard let url = URL(string: "https://image.tmdb.org/t/p/w500/\(model.posterURL)") else {
+               return
+           }
+            
+           heroImageView.sd_setImage(with: url, completed: nil)
+       }
+    
    
     // buttons -----------------------------------
     private lazy var playButton: UIButton = {
@@ -29,6 +37,9 @@ class HeroHeaderUIView: UIView {
         button.layer.borderColor = UIColor.systemPink.cgColor
         button.layer.borderWidth = 1
         button.layer.cornerRadius = 4
+        button.titleLabel?.minimumScaleFactor = 0.5
+        button.titleLabel?.numberOfLines = 0
+        button.titleLabel?.adjustsFontSizeToFitWidth = true
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -41,22 +52,13 @@ class HeroHeaderUIView: UIView {
         button.layer.borderColor = UIColor.systemPink.cgColor
         button.layer.borderWidth = 1
         button.layer.cornerRadius = 4
+        button.titleLabel?.minimumScaleFactor = 0.02
+        button.titleLabel?.numberOfLines = 2
+        button.titleLabel?.adjustsFontSizeToFitWidth = true
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
-//
-//    private lazy var buttonsStackView: UIStackView = {
-//        let stackview = UIStackView(arrangedSubviews: [playButton, downloadButton])
-//        stackview.axis = .horizontal
-//        stackview.alignment = .fill
-//        stackview.distribution = .fill
-//        stackview.contentMode = .scaleAspectFill
-//        stackview.spacing = 32
-//        stackview.alignment = .center
-//        stackview.backgroundColor = .green
-//
-//        return stackview
-//    }()
+
     
     // background -----------------------------------
     private lazy var heroImageView: UIImageView = {
@@ -94,13 +96,15 @@ class HeroHeaderUIView: UIView {
         
         NSLayoutConstraint.activate([
 
-            self.playButton.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor, constant: 70),
-                        self.playButton.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -50),
-                        self.playButton.widthAnchor.constraint(equalToConstant: 120),
-                        
-                        self.downloadButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -70),
-                        self.downloadButton.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -50),
-                        self.downloadButton.widthAnchor.constraint(equalToConstant: 120),
+            self.playButton.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor, constant: 40),
+            self.playButton.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -50),
+            self.playButton.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width / 3 - 10),
+            
+            
+            self.downloadButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -40),
+            self.downloadButton.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -50),
+            self.downloadButton.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width / 3 - 10),
+
 
         ])
 

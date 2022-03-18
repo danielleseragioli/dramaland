@@ -10,6 +10,10 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
         case topRatedTitles = 3
     }
     
+    private var randomHeaderMovies: Title?
+    private var headerView: HeroHeaderUIView?
+    private var titles: [Title] = [Title]()
+
     
     let sectiontitles: [String] = ["Trending Dramas", "Upcoming", "Popular", "Top Rated"]
     
@@ -26,12 +30,14 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
         view.backgroundColor = .systemBackground
         view.addSubview(homeFeedTable)
         configureNavbar()
+        configureHeaderView()
         
         homeFeedTable.delegate = self
         homeFeedTable.dataSource = self
         
-        let headerView = HeroHeaderUIView(frame: CGRect(x: 0, y: 0, width: view.bounds.width, height: 450))
+        headerView = HeroHeaderUIView(frame: CGRect(x: 0, y: 0, width: view.bounds.width, height: 500))
         homeFeedTable.tableHeaderView = headerView
+
     }
     
     override func viewDidLayoutSubviews() {
@@ -42,6 +48,22 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
     
     
     // top configuration ----------------------------------------------------------------
+    
+    private func configureHeaderView(){
+                
+        let headerConnection = APIcaller()
+        headerConnection.getDiscoverMovies{ [weak self] result in
+            
+            switch result {
+            case .success(let titles):
+                let selectedTitle = titles.randomElement()
+                self?.randomHeaderMovies = selectedTitle
+                self?.headerView?.configure(with: TitleViewModel(titleName: selectedTitle?.title ?? selectedTitle?.original_title ?? "", posterURL: selectedTitle?.poster_path ?? ""))
+            case .failure(let erorr):
+                print(erorr.localizedDescription)
+            }
+        }
+    }
     
     func configureNavbar(){
         
@@ -61,10 +83,10 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        let defaultOffset = view.safeAreaInsets.top
-        let offset = scrollView.contentOffset.y + defaultOffset
-        
-        navigationController?.navigationBar.transform = .init(translationX: 0, y: min(0, -offset))
+//        let defaultOffset = view.safeAreaInsets.top
+//        let offset = scrollView.contentOffset.y + defaultOffset
+//        
+//        navigationController?.navigationBar.transform = .init(translationX: 0, y: min(0, -offset))
         
     }
 
@@ -84,6 +106,8 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
         guard let cell = tableView.dequeueReusableCell(withIdentifier: CollectionViewTableViewCell.identifier, for: indexPath) as? CollectionViewTableViewCell else{
             return UITableViewCell()
         }
+        
+        cell.delegate = self
         
         switch indexPath.section{
             
@@ -164,4 +188,15 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
     }
  
 
+}
+
+extension HomeViewController: CollectionViewTableViewCellDelegate {
+    func collectionViewTableViewCellDidTapCell(_ cell: CollectionViewTableViewCell, viewModel: TitlePreviewViewModel) {
+        DispatchQueue.main.async { [weak self] in
+                    let vc = TitlePreviewViewController()
+                    vc.configure(with: viewModel)
+                    self?.navigationController?.pushViewController(vc, animated: true)
+                }
+        
+    }
 }

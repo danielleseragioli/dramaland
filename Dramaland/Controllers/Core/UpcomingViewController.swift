@@ -18,6 +18,7 @@ class UpcomingViewController: UIViewController {
         title = "Upcoming"
         navigationController?.navigationBar.prefersLargeTitles = true
         navigationController?.navigationItem.largeTitleDisplayMode = .always
+        navigationController?.navigationBar.tintColor = .systemPink
         
         view.addSubview(upcomingTable)
         upcomingTable.delegate = self
@@ -63,7 +64,7 @@ extension UpcomingViewController: UITableViewDelegate, UITableViewDataSource{
             return UITableViewCell()
         }
         let title = titles[indexPath.row]
-        cell.configure(with: TitleViewModel(titleName: title.original_title ?? "Desconhecido", posterURL: title.poster_path ?? "Desconhecido"))
+        cell.configure(with: TitleViewModel(titleName: title.title ?? title.original_title ?? "Desconhecido", posterURL: title.poster_path ?? "Desconhecido"))
         return cell
 
     }
@@ -71,6 +72,27 @@ extension UpcomingViewController: UITableViewDelegate, UITableViewDataSource{
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 148
     }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let title = titles[indexPath.row]
+        guard let titleName = title.title ?? title.original_title ?? title.original_name else {return}
+        
+        let connectionAAPIcaller = APIcaller()
+        connectionAAPIcaller.getMovie(with: titleName) { [weak self] result in
+            switch result {
+            case .success(let videoElement):
+                DispatchQueue.main.async {
+                    let vc = TitlePreviewViewController()
+                    vc.configure(with: TitlePreviewViewModel(title: titleName, youtubeView: videoElement, titleOverview: title.overview ?? ""))
+                    self?.navigationController?.pushViewController(vc, animated: true)
+                }
+ 
+            case .failure(let error):
+                print(error.localizedDescription)
+            }
+        }
+    }
+    
     
     
 }
